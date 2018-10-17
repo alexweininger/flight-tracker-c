@@ -6,9 +6,6 @@ typedef struct flight {
   int departureTime;
 } flight;
 
-// functions
-int validateCommand(char c);
-void printList(LLNode ** list);
-void help();
-flight * getFlightInfo();
-void readFile(LLNode *, FILE * fp);
+void flightMethodEdit(int n);
+
+// comment
