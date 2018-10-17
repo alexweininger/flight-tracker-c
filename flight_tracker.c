@@ -14,15 +14,10 @@ flight getFlightFromCommandLine();
 void readFile(LLNode *, FILE *fp);
 LLNode *getFlightsFile(LLNode *, FILE *);
 LLNode *insert(LLNode *node, flight);
-void del(LLNode *node, int flightNumber);
+LLNode * del(LLNode *node, int flightNumber);
 LLNode *createNode(flight f);
 
-LLNode *makeNode(flight *f) {
-  LLNode *nodePtr = (LLNode *)malloc(sizeof(LLNode));
-  nodePtr->next = NULL;
-  nodePtr->data = f;
-  return nodePtr;
-}
+LLNode * del()
 
 LLNode *makeLLNode(flight f) {
   LLNode *LLNodePtr = (LLNode *)malloc(sizeof(LLNode));
@@ -41,6 +36,7 @@ LLNode *insert(LLNode *top, flight f) {
   LLNode *prev = NULL;
   LLNode *curr = top;
   int n = f.flightNumber;
+
   while (curr != NULL && n >= curr->data->flightNumber) {
     if (n == curr->data->flightNumber) {
       printf("Cannot add flight, duplicate flight number: %04d\n",
@@ -50,6 +46,7 @@ LLNode *insert(LLNode *top, flight f) {
     prev = curr;
     curr = curr->next;
   }
+
   printf("Adding flight:   %c%C   ", f.airlines[0], f.airlines[1]);
   printf("%04d   %04d   %04d\n", f.flightNumber, f.arrivalTime,
          f.departureTime);
@@ -102,22 +99,28 @@ int userInput(LLNode *top) {
   flight f;
   // command logic chain
   if ('q' == c) {
-    printf("Quitting...\n");
+    printf("Quitting flight tracker...\n");
+    // TODO free
     exit(0);
   } else if ('p' == c) {
+    // print the flight list
     printList(top);
   } else if ('s' == c) {
+    // save flight list to file
     printf("Save command\n");
   } else if ('a' == c) {
-    printf("Add flight\n");
+    // add flight from command line
     f = parseLine(lineCopy);
+    if (top != NULL) {
+      top = insert(top, f);
+    }
   } else if ('d' == c) {
+    // delete flight given f num
     printf("Delete flight\n");
   } else {
-    printf("Invalid command\n");
+    printf("Invalid command \"%c\". Enter \"h\" for a list of commands.\n", c);
   }
 
-  insert(top, f);
   userInput(top);
 }
 
@@ -126,8 +129,6 @@ int main(int argc, char *argv[]) {
   LLNode *top = (LLNode *)malloc(sizeof(LLNode));
   top->next = NULL;
   top->data = (flight *)malloc(sizeof(flight));
-
-  userInput(top);
 
   FILE *fp;
   fp = NULL;
@@ -145,73 +146,7 @@ int main(int argc, char *argv[]) {
   // initiated without arguments
   printf("--- Flight Tracker ---\n");
   help();
-
-  char commandChar;
-  char *line;
-  while (1) {
-
-    scanf("%s", line);
-    printf("%s\n", line);
-
-    commandChar = getchar();
-
-    if ('q' == commandChar) {
-      free(top);
-      printf("Quitting Flight Tracker...\n");
-      exit(0); // exit
-    } else if ('p' == commandChar) {
-      printList(top);
-    } else if ('a' == commandChar) { // add flight to list
-      printf("Enter flight details:\n");
-      flight f;
-      scanf("%c%c", &f.airlines[0], &f.airlines[1]);
-      scanf("%4d %4d %4d\n", &f.flightNumber, &f.arrivalTime, &f.departureTime);
-      LLNode *node = malloc(sizeof(LLNode));
-      top = insert(top, f);
-      printList(top);
-    } else if ('d' == commandChar) {
-      // delete flight
-      int flightNumber = -1;
-      scanf("%d", &flightNumber);
-      printf("deleting flightNumber: %d\n", flightNumber);
-
-    } else if ('s' == commandChar) {
-      // save file
-    } else if ('h' == commandChar) {
-      help(); // print help
-    } else if ('\n' == commandChar) {
-
-    } else {
-      printf("Command \"%c\" not found.\n", commandChar);
-    }
-  }
-}
-
-flight getFlightFromCommandLine() {
-  char atime[5];
-  char dtime[5];
-  flight f;
-
-  scanf("a %c%c %4d", &f.airlines[0], &f.airlines[1], &f.flightNumber);
-  printf("found: %c%c %04d", f.airlines[0], f.airlines[2], f.flightNumber);
-  if (f.flightNumber == 0) {
-    printf("error\n");
-  }
-
-  scanf("%*c%*c %*s %4s %4s\n", atime, dtime);
-
-  atime[4] = '\0';
-  dtime[4] = '\0';
-  strncpy(atime, atime, 4);
-  printf("%s\n", atime);
-  f.departureTime = atoi(dtime);
-  f.arrivalTime = atoi(atime);
-
-  scanf(" %c%c %d %d %d", &f.airlines[0], &f.airlines[1], &f.flightNumber,
-        &f.departureTime, &f.arrivalTime);
-  printf("%c%c %d %d %d\n", f.airlines[0], f.airlines[1], f.flightNumber,
-         f.departureTime, f.arrivalTime);
-  return f;
+  userInput(top);
 }
 
 LLNode *getFlightsFile(LLNode *top, FILE *fp) {
