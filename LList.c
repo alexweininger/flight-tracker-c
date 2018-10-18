@@ -1,6 +1,13 @@
+/**
+ * LList.c - handles linked list logic
+ * author: Alex Weininger
+ * modified: 10/18/2018
+ */
 #include "Node.h"
 
-// insert node into linked list, keeping order
+/**
+ * insert - insert node into linked list, maintaining order
+ */
 Node *insert(Node *top, flight f) {
   Node *np, *curr, *prev;
   np = makeNode(f);
@@ -30,7 +37,9 @@ Node *insert(Node *top, flight f) {
   return top;
 }
 
-// delete node from list given flight number
+/**
+ * delete - delete node from list given flight number
+ */
 int delete (Node **listPtr, int flightNumber) {
   printf("Deleting flight %d...\n", flightNumber);
   Node *list = *listPtr;
@@ -60,7 +69,9 @@ int delete (Node **listPtr, int flightNumber) {
   return -1; // node not found
 }
 
-// allocate a node with given flight and return the node
+/**
+ * makeNode - allocate a node with given flight and return the node
+ */
 Node *makeNode(flight f) {
   Node *np = (Node *)malloc(sizeof(Node));
   np->data = (flight *)malloc(sizeof(flight));
@@ -73,7 +84,9 @@ Node *makeNode(flight f) {
   return np;
 }
 
-// print linked list
+/**
+ * printList - print linked list
+ */
 void printList(Node *node) {
   flight *f;
   printf("\n----- Flight list -----\n");
@@ -87,7 +100,9 @@ void printList(Node *node) {
   printf("-----------------------\n\n");
 }
 
-// free linked list
+/**
+ * freeLList - free linked list
+ */
 void freeLList(Node *top) {
   Node *curr = top;
   Node *temp = NULL;

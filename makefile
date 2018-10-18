@@ -1,4 +1,4 @@
-# CC = gcc
+CC = gcc
 CFLAGS = -g
 POSTFLAGS = -lreadline
 DEPS = Node.h flight_tracker.h
@@ -6,10 +6,8 @@ OBJ = flight_tracker.c LList.c
 
 %.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $< $(POSTFLAGS)
-
 ft: $(OBJ)
 	gcc $(CFLAGS) -o $@ $^ $(POSTFLAGS)
-
 clean:
 	rm -f *.o ft
 

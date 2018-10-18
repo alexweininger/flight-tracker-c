@@ -4,6 +4,7 @@
  * modified: 10/18/2018
  */
 
+// includes
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <string.h>
@@ -13,6 +14,6 @@
 void addFlightFromCLI(Node **, char *);
 void deleteFlightFromCLI(Node **, char *);
 int userInput(Node **);
-Node *getFlightsFile(Node **, FILE *);
+Node *getFlightsFromFile(Node **, FILE *);
 int saveToFile(Node *, char *);
 void help();

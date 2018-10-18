@@ -6,6 +6,9 @@
 
 #include "flight_tracker.h"
 
+/**
+ * main - initiates userInput loop and if needed starts file reading
+ */
 int main(int argc, char *argv[]) {
   Node *top = NULL;
   Node **listPtr = &top; // list pointer
@@ -17,14 +20,16 @@ int main(int argc, char *argv[]) {
       printf("Error: cannot open file named \"%s\".\n", argv[1]);
     } else {
       // load flights from file into list
-      *listPtr = getFlightsFile(listPtr, fp);
+      *listPtr = getFlightsFromFile(listPtr, fp);
     }
   }
   printf("--- Flight Tracker ---\n");
   userInput(listPtr); // get command from user
 }
 
-// get flight details from user and add flight
+/**
+ * addFlightFromCLI - get flight details from user input and add flight to list
+ */
 void addFlightFromCLI(Node **listPtr, char *line) {
   Node *top = *listPtr;
   char *tok, *airlStr, *numStr, *depStr, *arrStr, lineCopy[255];
@@ -52,7 +57,9 @@ void addFlightFromCLI(Node **listPtr, char *line) {
   }
 }
 
-// get flight number from user and delete flight
+/**
+ *  deleteFlightFromCLI - get flight number from user input and delete flight
+ */
 void deleteFlightFromCLI(Node **listPtr, char *str) {
   Node *top = *listPtr;
   char lineCopy[255], *token, *flightNumberStr;
@@ -69,7 +76,9 @@ void deleteFlightFromCLI(Node **listPtr, char *str) {
   }
 }
 
-// get user input for commands
+/**
+ * userInput - gets command from user input and handles command execution
+ */
 int userInput(Node **listPtr) {
   Node *top = *listPtr;
   char *token, *filename, c, lineCopy[255];
@@ -119,11 +128,14 @@ int userInput(Node **listPtr) {
   userInput(listPtr); // call userInput again
 }
 
-Node *getFlightsFile(Node **listPtr, FILE *fp) {
+/**
+ * getFlightsFromFile - reads file line by line, and inserts flights into list
+ */
+Node *getFlightsFromFile(Node **listPtr, FILE *fp) {
   Node *node = (Node *)malloc(sizeof(Node)); // allocate node
   char line[255], atime[5], dtime[5];
 
-  while (fgets(line, 255, fp)) { // reads file 1 line at a time
+  while (fgets(line, 255, fp)) {                  // reads file 1 line at a time
     flight *f = (flight *)malloc(sizeof(flight)); // allocate flight
     sscanf(line, "%c%c %d", &f->airlines[0], &f->airlines[1], &f->flightNumber);
 
@@ -131,16 +143,16 @@ Node *getFlightsFile(Node **listPtr, FILE *fp) {
       printf("Error: invalid flight number.\n");
 
     sscanf(line, "%*c%*c %*s %4s %4s\n", atime, dtime);
-    strncpy(atime, atime, 4);
     f->departureTime = atoi(dtime);
     f->arrivalTime = atoi(atime);
-
-    *listPtr = insert(*listPtr, *f);
+    *listPtr = insert(*listPtr, *f); // insert flight into list
   }
   printList(*listPtr);
   return *listPtr;
 }
-
+/**
+ * saveToFile - given a list and name, saves  list to file (if valid)
+ */
 int saveToFile(Node *top, char *filename) {
   printf("Saving to file \"%s\"...\n", filename);
   FILE *fp = NULL;
@@ -148,7 +160,7 @@ int saveToFile(Node *top, char *filename) {
 
   if (NULL == fp) {
     printf("Error: Could not open file \"%s\" for writing.\n", filename);
-    return -1;
+    return -1; // return -1 for error
   }
 
   Node *curr = top;
@@ -161,11 +173,13 @@ int saveToFile(Node *top, char *filename) {
     curr = curr->next;
   }
   fclose(fp); // close file
-  return 1;
+  return 1;   // return 1 for success
 }
-
-void help() { // print the help commands
-  printf("\nFlight Tracker commands:\n");
+/**
+ * help - prints the commands and options for each command
+ */
+void help() {
+  printf("\nflight tracker commands:\n");
   // a <flight information> add flight, no duplicate flight numbers
   printf("  a [flightInfo]\tadd a flight\n");
   // d <flight number> for deleting a flight
