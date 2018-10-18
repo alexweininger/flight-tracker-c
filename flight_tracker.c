@@ -6,31 +6,77 @@
 #include <stdlib.h>
 #include <string.h>
 
-// functions
-int validateCommand(char c);
+// function declarations
+
+int validateCommand(char);
+void readFile(LLNode *, FILE *);
+LLNode *getFlightsFile(FILE *);
+int saveToFile(LLNode *, char *);
+LLNode *insert(LLNode **, flight);
+int delete (LLNode **, int);
+void LList(LLNode *);
 void printList(LLNode *);
 void help();
-void readFile(LLNode *, FILE *fp);
-LLNode *getFlightsFile(LLNode *, FILE *);
-LLNode *insert(LLNode *, flight);
-int delete(LLNode *node, int flightNumber);
+LLNode *makeLLNode(flight);
 
-int delete(LLNode *top, int flightNumber) {
-  printf("Attempting to delete flight %d.\n", flightNumber);
-  LLNode *curr = top;
+LLNode *insert(LLNode **listPtr, flight f) {
+  LLNode *list = *listPtr;
+  LLNode *np = makeLLNode(f);
   LLNode *prev = NULL;
-  while (curr != NULL) {
-    if (flightNumber == curr->data->flightNumber) {
-      prev->next = curr->next;
-      free(curr);
-      printf("Deleted flight %d.\n", flightNumber);
-      return 1;
+  LLNode *curr = list;
+  int n = f.flightNumber;
+
+  while (curr->next != NULL && n >= curr->data->flightNumber) {
+    if (n == curr->data->flightNumber) {
+      printf("Cannot add flight, duplicate flight number: %04d\n",
+             f.flightNumber);
+      return top;
     }
     prev = curr;
     curr = curr->next;
   }
-  printf("Flight %d not found, could not delete.\n", flightNumber);
-  return -1;
+
+  printf("Adding flight:   %c%C   ", f.airlines[0], f.airlines[1]);
+  printf("%04d   %04d   %04d\n", f.flightNumber, f.arrivalTime,
+         f.departureTime);
+  if (prev == NULL) { // new number must be added at the top
+    printf("Changed top when inserting flight.\n");
+    np->next = top;
+    return np; // the top of the list has changed to the new node
+  }
+  np->next = curr;
+  prev->next = np;
+  return top; // the top of the list has not changed
+}
+
+int delete (LLNode **listPtr, int flightNumber) {
+  printf("Attempting to delete flight %d.\n", flightNumber);
+
+  LLNode *list = *listPtr;
+
+  // if deleting first node
+  if ((*listPtr)->data->flightNumber == flightNumber) {
+    printf("node to delete is first in list\n");
+    *listPtr = list->next;
+    free(list); // free the node
+    return 1;   // node was deleted
+  }
+
+  LLNode *prev = list;
+  list = list->next;
+
+  while (list != NULL) {
+    if (flightNumber == list->data->flightNumber) {
+      // redo pointers and then free memory
+      prev->next = list->next;
+      free(list);
+      return 1; // deleted node
+    }
+    prev = list; // update prev
+    list = list->next;
+  }
+  return 0; // node not found
+  printf("bottom of delete\n");
 }
 
 LLNode *makeLLNode(flight f) {
@@ -45,35 +91,8 @@ LLNode *makeLLNode(flight f) {
   return LLNodePtr;
 }
 
-LLNode *insert(LLNode *top, flight f) {
-  LLNode *np = makeLLNode(f);
-  LLNode *prev = NULL;
-  LLNode *curr = top;
-  int n = f.flightNumber;
-
-  while (curr != NULL && n >= curr->data->flightNumber) {
-    if (n == curr->data->flightNumber) {
-      printf("Cannot add flight, duplicate flight number: %04d\n",
-             f.flightNumber);
-      return top;
-    }
-    prev = curr;
-    curr = curr->next;
-  }
-
-  printf("Adding flight:   %c%C   ", f.airlines[0], f.airlines[1]);
-  printf("%04d   %04d   %04d\n", f.flightNumber, f.arrivalTime,
-         f.departureTime);
-  if (prev == NULL) { // new number must be added at the top
-    np->next = top;
-    return np; // the top of the list has changed to the new node
-  }
-  np->next = curr;
-  prev->next = np;
-  return top; // the top of the list has not changed
-}
-
-void deleteFlightFromCLI(LLNode *top, char *str) {
+void deleteFlightFromCLI(LLNode **listPtr, char *str) {
+  LLNode *top = *listPtr;
   char lineCopy[255];
   char *token, *flightNumberStr;
 
@@ -85,11 +104,13 @@ void deleteFlightFromCLI(LLNode *top, char *str) {
   if (flightNumberStr == NULL) {
     printf("Error\n"); // TODO
   } else {
-    delete(top, atoi(flightNumberStr));
+    delete (listPtr, atoi(flightNumberStr));
+    printList(top);
   }
 }
 
-void AddFlightFromCLI(LLNode *top, char *str) {
+void addFlightFromCLI(LLNode **listPtr, char *str) {
+  LLNode *top = *listPtr;
   flight f;
   char d[2] = " ";
   char lineCopy[255];
@@ -111,55 +132,96 @@ void AddFlightFromCLI(LLNode *top, char *str) {
     f.flightNumber = atoi(flightNumberStr);
     f.departureTime = atoi(departureStr);
     f.arrivalTime = atoi(arrivalStr);
-    top = insert(top, f);
+    top = insert(&top, f);
   }
 }
 
+// free linked list
+void freeLList(LLNode *top) {
+  // TODO free linked list
+  LLNode *curr = top;
+  LLNode *temp = NULL;
+  while (curr != NULL) {
+    temp = curr;
+    curr = curr->next;
+    free(temp->data);
+    free(temp);
+  }
+  free(top);
+}
+
+// get user input for commands
 int userInput(LLNode *top) {
-  char *line = readline(">");
+  LLNode **listPtr = &top;
+  char *line = readline("> ");
   char lineCopy[255];
   char *token;
   char c;
   flight f;
   strcpy(lineCopy, line);
 
-  char d[2] = " ";
-
   // getting command from first letter of line
-  token = strtok(line, d);
-
+  token = strtok(line, " ");
   c = token[0];
-  // command logic chain
+
   if ('q' == c) {
-    printf("Quitting flight tracker...\n");
-    // TODO free
-    exit(0);
+    printf("Quitting flight tracker...\n\n");
+    printList(top); // print list
+    freeLList(top); // free linked list
+    exit(0);        // exit
   } else if ('p' == c) {
-    // print the flight list
-    printList(top);
+    printList(top); // print the flight list
   } else if ('s' == c) {
     // save flight list to file
     printf("Save command\n");
+    char *filename;
+    filename = strtok(NULL, " ");
+    if (NULL != filename) {
+      saveToFile(top, filename);
+    } else {
+      printf("Invalid filename, could not save to file.\n");
+    }
+    printf("filename from token: %s\n", filename);
   } else if ('a' == c) {
     // add flight from command line
-    AddFlightFromCLI(top, lineCopy);
+    addFlightFromCLI(listPtr, lineCopy);
   } else if ('d' == c) {
     // delete flight given f num
-    deleteFlightFromCLI(top, lineCopy);
+    deleteFlightFromCLI(listPtr, lineCopy);
 
   } else {
     printf("Invalid command \"%c\". Enter \"h\" for a list of commands.\n", c);
   }
 
+  printList(top);
   userInput(top);
+}
+
+int saveToFile(LLNode *top, char *filename) {
+  FILE *fp = NULL;
+  fp = fopen(filename, "w");
+
+  if (NULL == fp) {
+    printf("Error opening file \"%s\" for writing\n", filename);
+    return -1;
+  }
+
+  LLNode *curr = top;
+  while (NULL != curr->next) {
+    flight *f = curr->data;
+    fprintf(fp, "%c%c   ", f->airlines[0], f->airlines[1]);
+    fprintf(fp, "%04d   ", f->flightNumber);
+    fprintf(fp, "%04d   %04d\n", f->arrivalTime, f->departureTime);
+    curr = curr->next;
+  }
+  fclose(fp);
+  return 1;
 }
 
 int main(int argc, char *argv[]) {
   // linked list
-  LLNode *top = (LLNode *)malloc(sizeof(LLNode));
-  top->next = NULL;
-  top->data = (flight *)malloc(sizeof(flight));
-
+  LLNode *top = NULL;
+  LLNode **listPtr = &top;
   FILE *fp;
   fp = NULL;
 
@@ -169,7 +231,7 @@ int main(int argc, char *argv[]) {
     if (NULL == fp) {
       printf("Error: cannot open file: %s\n", argv[1]);
     } else {
-      top = getFlightsFile(top, fp);
+      *listPtr = getFlightsFile(fp);
     }
   }
 
@@ -179,10 +241,9 @@ int main(int argc, char *argv[]) {
   userInput(top);
 }
 
-LLNode *getFlightsFile(LLNode *top, FILE *fp) {
-  char string[255];
-  char atime[5];
-  char dtime[5];
+LLNode *getFlightsFile(FILE *fp) {
+  char string[255], atime[5], dtime[5];
+  LLNode *node = malloc(sizeof(LLNode));
   while (fgets(string, 255, fp)) {
     flight *f = (flight *)malloc(sizeof(flight));
 
@@ -200,26 +261,27 @@ LLNode *getFlightsFile(LLNode *top, FILE *fp) {
     f->departureTime = atoi(dtime);
     f->arrivalTime = atoi(atime);
 
-    top = insert(top, *f);
+    node = insert(&node, *f);
   }
-  printList(top);
-  return top;
+  printList(node);
+  return node;
 }
 
-void printList(LLNode *top) {
-  printf("----- Flight list -----\n");
-  LLNode *curr = top->next;
-  while (NULL != curr) {
-    flight *f = curr->data;
+void printList(LLNode *node) {
+  printf("\n----- Flight list -----\n");
+  flight *f;
+  while (node->next != NULL) {
+    f = node->data;
     printf("%c%c   ", f->airlines[0], f->airlines[1]);
     printf("%04d   ", f->flightNumber);
     printf("%04d   %04d\n", f->arrivalTime, f->departureTime);
-    curr = curr->next;
+    node = node->next;
   }
+  printf("-----------------------\n\n");
 }
 
 void help() { // print the help commands
-  printf("Flight Tracker commands: \n");
+  printf("\nFlight Tracker commands:\n");
   // a <flight information> add flight, no duplicate flight numbers
   printf("  a [flightInfo]\tadd a flight\n");
   // d <flight number> for deleting a flight
@@ -231,5 +293,5 @@ void help() { // print the help commands
   // q # quit the flight tracker and deallocate memory
   printf("  q\t\t\tquit flight tracker\n");
   // show help
-  printf("  h\t\t\tshow commands\n");
+  printf("  h\t\t\tshow commands\n\n");
 }
