@@ -1,3 +1,9 @@
+/**
+ * Node.h
+ * author: Alex Weininger
+ * modified: 10/18/2018
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "flight.h"
@@ -8,7 +14,7 @@ typedef struct Node {
 } Node;
 
 Node *insert(Node *, flight);
-Node * makeNode(flight);
 int delete (Node **, int);
+Node * makeNode(flight);
 void printList(Node *);
 void freeLList(Node *);
