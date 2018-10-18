@@ -72,18 +72,16 @@ void deleteFlightFromCLI(Node **listPtr, char *str) {
 // get user input for commands
 int userInput(Node **listPtr) {
   Node *top = *listPtr;
+  char *token, *filename, c, lineCopy[255];
   char *line = readline("> ");
-  char lineCopy[255];
-  char *token;
-  char c;
-  flight f;
-  strcpy(lineCopy, line);
-  char *filename;
+
+  strcpy(lineCopy, line); // make copy of line for later
 
   // getting command from first letter of line
   token = strtok(line, " ");
   c = token[0];
 
+  // switch statement for handling commands
   switch (c) {
   case 'a':
     // add flight from cli
@@ -122,29 +120,6 @@ int userInput(Node **listPtr) {
   userInput(listPtr);
 }
 
-int saveToFile(Node *top, char *filename) {
-  printf("Saving to file \"%s\"...\n", filename);
-  FILE *fp = NULL;
-  fp = fopen(filename, "w");
-
-  if (NULL == fp) {
-    printf("Error: Could not open file \"%s\" for writing.\n", filename);
-    return -1;
-  }
-
-  Node *curr = top;
-  while (NULL != curr->next) {
-    flight *f = curr->data;
-    // write flight details to file
-    fprintf(fp, "%c%c   ", f->airlines[0], f->airlines[1]);
-    fprintf(fp, "%04d   ", f->flightNumber);
-    fprintf(fp, "%04d   %04d\n", f->arrivalTime, f->departureTime);
-    curr = curr->next;
-  }
-  fclose(fp); // close file
-  return 1;
-}
-
 Node *getFlightsFile(Node **listPtr, FILE *fp) {
   char string[255], atime[5], dtime[5];
   Node *node = malloc(sizeof(Node));
@@ -169,6 +144,29 @@ Node *getFlightsFile(Node **listPtr, FILE *fp) {
   }
   printList(*listPtr);
   return *listPtr;
+}
+
+int saveToFile(Node *top, char *filename) {
+  printf("Saving to file \"%s\"...\n", filename);
+  FILE *fp = NULL;
+  fp = fopen(filename, "w");
+
+  if (NULL == fp) {
+    printf("Error: Could not open file \"%s\" for writing.\n", filename);
+    return -1;
+  }
+
+  Node *curr = top;
+  while (NULL != curr->next) {
+    flight *f = curr->data;
+    // write flight details to file
+    fprintf(fp, "%c%c   ", f->airlines[0], f->airlines[1]);
+    fprintf(fp, "%04d   ", f->flightNumber);
+    fprintf(fp, "%04d   %04d\n", f->arrivalTime, f->departureTime);
+    curr = curr->next;
+  }
+  fclose(fp); // close file
+  return 1;
 }
 
 void help() { // print the help commands
