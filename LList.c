@@ -98,5 +98,4 @@ void freeLList(Node *top) {
     free(temp->data);
     free(temp);
   }
-  free(top);
 }

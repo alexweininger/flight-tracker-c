@@ -118,7 +118,7 @@ int userInput(Node **listPtr) {
     printf("Invalid command \"%c\". Enter \"h\" for a list of commands.\n", c);
     break;
   }
-
+  free(line);
   userInput(listPtr);
 }
 
