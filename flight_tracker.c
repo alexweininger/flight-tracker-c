@@ -115,34 +115,6 @@ void AddFlightFromCLI(LLNode *top, char *str) {
   }
 }
 
-// TODO deprecated
-flight parseLine(char line[]) {
-  flight f;
-  char atime[5];
-  char dtime[5];
-
-  printf("parseLine() - input line: %s\n", line);
-  sscanf(line, "%c%c %d", &f.airlines[0], &f.airlines[1], &f.flightNumber);
-
-  if (f.flightNumber == 0) {
-    printf("error\n");
-  }
-
-  sscanf(line, "%*c%*c %*s %4s %4s\n", atime, dtime);
-  atime[4] = '\0';
-  dtime[4] = '\0';
-  strncpy(atime, atime, 4);
-  f.departureTime = atoi(dtime);
-  f.arrivalTime = atoi(atime);
-
-  printf("Recieved flight details from add command:\n");
-  printf("%c%c   ", f.airlines[0], f.airlines[1]);
-  printf("%04d   ", f.flightNumber);
-  printf("%04d   %04d\n", f.arrivalTime, f.departureTime);
-
-  return f;
-}
-
 int userInput(LLNode *top) {
   char *line = readline(">");
   char lineCopy[255];
