@@ -8,7 +8,7 @@
 
 int main(int argc, char *argv[]) {
   Node *top = NULL;
-  Node **listPtr = &top;
+  Node **listPtr = &top; // list pointer
 
   if (argc == 2) { // if filename provided
     FILE *fp = NULL;
@@ -27,27 +27,26 @@ int main(int argc, char *argv[]) {
 // get flight details from user and add flight
 void addFlightFromCLI(Node **listPtr, char *line) {
   Node *top = *listPtr;
-  flight f;
-  char *token, *airlinesStr, *flightNumStr, *departureStr, *arrivalStr,
-      lineCopy[255];
+  char *tok, *airlStr, *numStr, *depStr, *arrStr, lineCopy[255];
   strncpy(lineCopy, line, 254);
 
   // tokenize user input
-  token = strtok(line, " ");
-  airlinesStr = strtok(NULL, " ");
-  flightNumStr = strtok(NULL, " ");
-  arrivalStr = strtok(NULL, " ");
-  departureStr = strtok(NULL, " ");
+  tok = strtok(line, " ");
+  airlStr = strtok(NULL, " ");
+  numStr = strtok(NULL, " ");
+  arrStr = strtok(NULL, " ");
+  depStr = strtok(NULL, " ");
 
-  if (airlinesStr == NULL || flightNumStr == NULL || arrivalStr == NULL ||
-      departureStr == NULL) {
+  flight f;
+  if (airlStr == NULL || numStr == NULL || arrStr == NULL || depStr == NULL) {
     printf("Invalid flight details. Cannot add flight.\n");
   } else {
-    f.airlines[0] = airlinesStr[0];
-    f.airlines[1] = airlinesStr[1];
-    f.flightNumber = atoi(flightNumStr);
-    f.departureTime = atoi(departureStr);
-    f.arrivalTime = atoi(arrivalStr);
+    // store details in flight
+    f.airlines[0] = airlStr[0];
+    f.airlines[1] = airlStr[1];
+    f.flightNumber = atoi(numStr);
+    f.departureTime = atoi(depStr);
+    f.arrivalTime = atoi(arrStr);
 
     *listPtr = insert(*listPtr, f);
   }
@@ -121,20 +120,17 @@ int userInput(Node **listPtr) {
 }
 
 Node *getFlightsFile(Node **listPtr, FILE *fp) {
+  Node *node = (Node *)malloc(sizeof(Node)); // allocate node
   char line[255], atime[5], dtime[5];
-  Node *node = malloc(sizeof(Node));
 
-  while (fgets(line, 255, fp)) {
-    flight *f = (flight *)malloc(sizeof(flight));
+  while (fgets(line, 255, fp)) { // reads file 1 line at a time
+    flight *f = (flight *)malloc(sizeof(flight)); // allocate flight
     sscanf(line, "%c%c %d", &f->airlines[0], &f->airlines[1], &f->flightNumber);
 
-    if (f->flightNumber == 0) {
+    if (f->flightNumber == 0)
       printf("Error: invalid flight number.\n");
-    }
 
     sscanf(line, "%*c%*c %*s %4s %4s\n", atime, dtime);
-    atime[4] = '\0';
-    dtime[4] = '\0';
     strncpy(atime, atime, 4);
     f->departureTime = atoi(dtime);
     f->arrivalTime = atoi(atime);
