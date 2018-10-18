@@ -1,3 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-
+// flight struct
+typedef struct flight{
+  char airlines[2];
+  int flightNumber;
+  int arrivalTime;
+  int departureTime;
+} flight;

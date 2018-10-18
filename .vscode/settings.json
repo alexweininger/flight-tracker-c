@@ -3,6 +3,11 @@
 	"C_Cpp.errorSquiggles": "Enabled",
 	"files.associations": {
 		"flight_tracker.h": "c",
-		"readline.h": "c"
+		"readline.h": "c",
+		"string.h": "c",
+		"stdlib.h": "c",
+		"llnode.h": "c",
+		"stdio.h": "c",
+		"flight.h": "c"
 	}
 }

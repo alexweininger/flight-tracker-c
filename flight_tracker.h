@@ -1,11 +1,12 @@
-// flight struct
-typedef struct flight {
-  char airlines[2];
-  int flightNumber;
-  int arrivalTime;
-  int departureTime;
-} flight;
+/**
+ * flight_tracker.h
+ */
 
-void flightMethodEdit(int n);
+#include "LLNode.h"
 
-// comment
+// function declarations
+int validateCommand(char);
+void readFile(LLNode *, FILE *);
+LLNode *getFlightsFile(LLNode **, FILE *);
+int saveToFile(LLNode *, char *);
+void help();
