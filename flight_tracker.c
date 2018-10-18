@@ -10,14 +10,28 @@
 int validateCommand(char c);
 void printList(LLNode *);
 void help();
-flight getFlightFromCommandLine();
 void readFile(LLNode *, FILE *fp);
 LLNode *getFlightsFile(LLNode *, FILE *);
-LLNode *insert(LLNode *node, flight);
-LLNode * del(LLNode *node, int flightNumber);
-LLNode *createNode(flight f);
+LLNode *insert(LLNode *, flight);
+int delete(LLNode *node, int flightNumber);
 
-LLNode * del()
+int delete(LLNode *top, int flightNumber) {
+  printf("Attempting to delete flight %d.\n", flightNumber);
+  LLNode *curr = top;
+  LLNode *prev = NULL;
+  while (curr != NULL) {
+    if (flightNumber == curr->data->flightNumber) {
+      prev->next = curr->next;
+      free(curr);
+      printf("Deleted flight %d.\n", flightNumber);
+      return 1;
+    }
+    prev = curr;
+    curr = curr->next;
+  }
+  printf("Flight %d not found, could not delete.\n", flightNumber);
+  return -1;
+}
 
 LLNode *makeLLNode(flight f) {
   LLNode *LLNodePtr = (LLNode *)malloc(sizeof(LLNode));
@@ -59,14 +73,56 @@ LLNode *insert(LLNode *top, flight f) {
   return top; // the top of the list has not changed
 }
 
+void deleteFlightFromCLI(LLNode *top, char *str) {
+  char lineCopy[255];
+  char *token, *flightNumberStr;
+
+  strncpy(lineCopy, str, 254);
+
+  token = strtok(lineCopy, " ");
+  flightNumberStr = strtok(NULL, " ");
+
+  if (flightNumberStr == NULL) {
+    printf("Error\n"); // TODO
+  } else {
+    delete(top, atoi(flightNumberStr));
+  }
+}
+
+void AddFlightFromCLI(LLNode *top, char *str) {
+  flight f;
+  char d[2] = " ";
+  char lineCopy[255];
+  char *token, *airlinesStr, *flightNumberStr, *departureStr, *arrivalStr;
+  strncpy(lineCopy, str, 254);
+
+  token = strtok(lineCopy, d);
+  airlinesStr = strtok(NULL, d);
+  flightNumberStr = strtok(NULL, d);
+  arrivalStr = strtok(NULL, d);
+  departureStr = strtok(NULL, d);
+
+  if (airlinesStr == NULL || flightNumberStr == NULL || arrivalStr == NULL ||
+      departureStr == NULL) {
+    printf("Invalid flight details. Cannot add flight.\n");
+  } else {
+    f.airlines[0] = airlinesStr[0];
+    f.airlines[1] = airlinesStr[1];
+    f.flightNumber = atoi(flightNumberStr);
+    f.departureTime = atoi(departureStr);
+    f.arrivalTime = atoi(arrivalStr);
+    top = insert(top, f);
+  }
+}
+
+// TODO deprecated
 flight parseLine(char line[]) {
+  flight f;
   char atime[5];
   char dtime[5];
 
-  flight f;
-
   printf("parseLine() - input line: %s\n", line);
-  sscanf(line, "%*c %c%c %d", &f.airlines[0], &f.airlines[1], &f.flightNumber);
+  sscanf(line, "%c%c %d", &f.airlines[0], &f.airlines[1], &f.flightNumber);
 
   if (f.flightNumber == 0) {
     printf("error\n");
@@ -90,13 +146,17 @@ flight parseLine(char line[]) {
 int userInput(LLNode *top) {
   char *line = readline(">");
   char lineCopy[255];
+  char *token;
+  char c;
+  flight f;
   strcpy(lineCopy, line);
 
-  // getting command from first letter of line
-  char c = lineCopy[0];
-  printf("command character: %c\n", c);
+  char d[2] = " ";
 
-  flight f;
+  // getting command from first letter of line
+  token = strtok(line, d);
+
+  c = token[0];
   // command logic chain
   if ('q' == c) {
     printf("Quitting flight tracker...\n");
@@ -110,13 +170,11 @@ int userInput(LLNode *top) {
     printf("Save command\n");
   } else if ('a' == c) {
     // add flight from command line
-    f = parseLine(lineCopy);
-    if (top != NULL) {
-      top = insert(top, f);
-    }
+    AddFlightFromCLI(top, lineCopy);
   } else if ('d' == c) {
     // delete flight given f num
-    printf("Delete flight\n");
+    deleteFlightFromCLI(top, lineCopy);
+
   } else {
     printf("Invalid command \"%c\". Enter \"h\" for a list of commands.\n", c);
   }
