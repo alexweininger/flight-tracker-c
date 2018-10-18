@@ -114,36 +114,6 @@ int userInput(LLNode **listPtr) {
     printf("Invalid command \"%c\". Enter \"h\" for a list of commands.\n", c);
   }
 
-  // if ('q' == c) {
-  //   printf("Quitting flight tracker...\n\n");
-  //   printList(top); // print list
-  //   freeLList(top); // free linked list
-  //   exit(0);        // exit
-  // } else if ('h' == c) {
-  //   help();
-  // } else if ('p' == c) {
-  //   printList(top); // print the flight list
-  // } else if ('s' == c) {
-  //   // save flight list to file
-  //   printf("Save command\n");
-  //   char *filename;
-  //   filename = strtok(NULL, " ");
-  //   if (NULL != filename) {
-  //     saveToFile(top, filename);
-  //   } else {
-  //     printf("Invalid filename, could not save to file.\n");
-  //   }
-  //   printf("filename from token: %s\n", filename);
-  // } else if ('a' == c) {
-  //   // add flight from command line
-  //   addFlightFromCLI(listPtr, lineCopy);
-  // } else if ('d' == c) {
-  //   // delete flight given f num
-  //   deleteFlightFromCLI(listPtr, lineCopy);
-
-  // } else {
-  //   printf("Invalid command \"%c\". Enter \"h\" for a list of commands.\n", c);
-  // }
   userInput(listPtr);
 }
 
