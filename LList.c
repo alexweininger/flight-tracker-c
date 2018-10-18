@@ -89,7 +89,6 @@ void printList(Node *node) {
 
 // free linked list
 void freeLList(Node *top) {
-  // TODO free linked list
   Node *curr = top;
   Node *temp = NULL;
   while (curr != NULL) {

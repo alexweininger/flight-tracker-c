@@ -19,5 +19,6 @@
 		"latex",
 		"plaintext",
 		"c"
-	]
+	],
+	"githubNotificationsBell.oauthToken": "8ba52d43a153890a495d6243d0f352861d2a58cd"
 }

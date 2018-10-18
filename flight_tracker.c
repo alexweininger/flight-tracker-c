@@ -1,7 +1,10 @@
+/**
+ * flight_tracker.c - main programming logic for the flight tracker program
+ * author: Alex Weininger
+ * modified: 10/18/2018
+ */
+
 #include "flight_tracker.h"
-#include <readline/history.h>
-#include <readline/readline.h>
-#include <string.h>
 
 int main(int argc, char *argv[]) {
   Node *top = NULL;
@@ -11,14 +14,14 @@ int main(int argc, char *argv[]) {
     FILE *fp = NULL;
     fp = fopen(argv[1], "r"); // open file for reading
     if (NULL == fp) {
-      printf("Error: cannot open file with filename \"%s\".\n", argv[1]);
+      printf("Error: cannot open file named \"%s\".\n", argv[1]);
     } else {
+      // load flights from file into list
       *listPtr = getFlightsFile(listPtr, fp);
     }
   }
-
   printf("--- Flight Tracker ---\n");
-  userInput(listPtr);
+  userInput(listPtr); // get command from user
 }
 
 // get flight details from user and add flight
@@ -53,11 +56,9 @@ void addFlightFromCLI(Node **listPtr, char *line) {
 // get flight number from user and delete flight
 void deleteFlightFromCLI(Node **listPtr, char *str) {
   Node *top = *listPtr;
-  char lineCopy[255];
-  char *token, *flightNumberStr;
+  char lineCopy[255], *token, *flightNumberStr;
 
   strncpy(lineCopy, str, 254);
-
   token = strtok(lineCopy, " ");
   flightNumberStr = strtok(NULL, " ");
 
@@ -116,24 +117,22 @@ int userInput(Node **listPtr) {
     printf("Invalid command \"%c\". Enter \"h\" for a list of commands.\n", c);
     break;
   }
-  free(line);
-  userInput(listPtr);
+  userInput(listPtr); // call userInput again
 }
 
 Node *getFlightsFile(Node **listPtr, FILE *fp) {
-  char string[255], atime[5], dtime[5];
+  char line[255], atime[5], dtime[5];
   Node *node = malloc(sizeof(Node));
-  while (fgets(string, 255, fp)) {
-    flight *f = (flight *)malloc(sizeof(flight));
 
-    sscanf(string, "%c%c %d", &f->airlines[0], &f->airlines[1],
-           &f->flightNumber);
+  while (fgets(line, 255, fp)) {
+    flight *f = (flight *)malloc(sizeof(flight));
+    sscanf(line, "%c%c %d", &f->airlines[0], &f->airlines[1], &f->flightNumber);
 
     if (f->flightNumber == 0) {
       printf("Error: invalid flight number.\n");
     }
 
-    sscanf(string, "%*c%*c %*s %4s %4s\n", atime, dtime);
+    sscanf(line, "%*c%*c %*s %4s %4s\n", atime, dtime);
     atime[4] = '\0';
     dtime[4] = '\0';
     strncpy(atime, atime, 4);
