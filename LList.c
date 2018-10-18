@@ -1,25 +1,17 @@
+#include "Node.h"
 
-#include "LLNode.h"
-
-LLNode *makeLLNode(flight f) {
-  LLNode *LLNodePtr = (LLNode *)malloc(sizeof(LLNode));
-  LLNodePtr->next = NULL;
-  LLNodePtr->data = (flight *)malloc(sizeof(flight));
-  LLNodePtr->data->airlines[0] = f.airlines[0];
-  LLNodePtr->data->airlines[1] = f.airlines[1];
-  LLNodePtr->data->flightNumber = f.flightNumber;
-  LLNodePtr->data->arrivalTime = f.arrivalTime;
-  LLNodePtr->data->departureTime = f.departureTime;
-  return LLNodePtr;
-}
-
-LLNode *insert(LLNode *top, flight f) {
-  LLNode *np, *curr, *prev;
-  np = makeLLNode(f);
+// insert node into linked list, keeping order
+Node *insert(Node *top, flight f) {
+  Node *np, *curr, *prev;
+  np = makeNode(f);
   prev = NULL;
   curr = top;
-  int n = f.flightNumber;
-  while (curr != NULL && n > curr->data->flightNumber) {
+
+  while (curr != NULL && f.flightNumber >= curr->data->flightNumber) {
+    if (curr->data->flightNumber == f.flightNumber) {
+      printf("Flight %d already exists, did not add flight.\n", f.flightNumber);
+      return top;
+    }
     prev = curr;
     curr = curr->next;
   }
@@ -28,10 +20,7 @@ LLNode *insert(LLNode *top, flight f) {
     top->next = curr;
     return top;
   }
-  if (prev->data->flightNumber == n) {
-    printf("Duplicate flight number\n");
-    return top;
-  }
+
   np->next = curr;
   prev->next = np;
 
@@ -41,20 +30,21 @@ LLNode *insert(LLNode *top, flight f) {
   return top;
 }
 
-int delete (LLNode **listPtr, int flightNumber) {
-  printf("Attempting to delete flight %d.\n", flightNumber);
-  LLNode *list = *listPtr;
+// delete node from list given flight number
+int delete (Node **listPtr, int flightNumber) {
+  printf("Deleting flight %d...\n", flightNumber);
+  Node *list = *listPtr;
 
   // if deleting first node
   if ((*listPtr)->data->flightNumber == flightNumber) {
     printf("node to delete is first in list\n");
-    LLNode *temp = list->next;
+    Node *temp = list->next;
     *listPtr = temp;
     // free(list); // free the node
     return 1; // node was deleted
   }
 
-  LLNode *prev = list;
+  Node *prev = list;
   list = list->next;
 
   while (list != NULL) {
@@ -70,9 +60,23 @@ int delete (LLNode **listPtr, int flightNumber) {
   return -1; // node not found
 }
 
-void printList(LLNode *node) {
-  printf("\n----- Flight list -----\n");
+// allocate a node with given flight and return the node
+Node *makeNode(flight f) {
+  Node *np = (Node *)malloc(sizeof(Node));
+  np->data = (flight *)malloc(sizeof(flight));
+  np->data->airlines[0] = f.airlines[0];
+  np->data->airlines[1] = f.airlines[1];
+  np->data->flightNumber = f.flightNumber;
+  np->data->arrivalTime = f.arrivalTime;
+  np->data->departureTime = f.departureTime;
+  np->next = NULL;
+  return np;
+}
+
+// print linked list
+void printList(Node *node) {
   flight *f;
+  printf("\n----- Flight list -----\n");
   while (node->next != NULL) {
     f = node->data;
     printf("%c%c   ", f->airlines[0], f->airlines[1]);
@@ -81,4 +85,18 @@ void printList(LLNode *node) {
     node = node->next;
   }
   printf("-----------------------\n\n");
+}
+
+// free linked list
+void freeLList(Node *top) {
+  // TODO free linked list
+  Node *curr = top;
+  Node *temp = NULL;
+  while (curr != NULL) {
+    temp = curr;
+    curr = curr->next;
+    free(temp->data);
+    free(temp);
+  }
+  free(top);
 }
