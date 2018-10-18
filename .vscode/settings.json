@@ -8,6 +8,16 @@
 		"stdlib.h": "c",
 		"llnode.h": "c",
 		"stdio.h": "c",
-		"flight.h": "c"
-	}
+		"flight.h": "c",
+		"node.h": "c"
+	},
+	"spellright.language": [
+		"en"
+	],
+	"spellright.documentTypes": [
+		"markdown",
+		"latex",
+		"plaintext",
+		"c"
+	]
 }
