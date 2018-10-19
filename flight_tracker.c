@@ -23,6 +23,8 @@ int main(int argc, char *argv[]) {
       // load flights from file into list
       printf("Loading flights from \"%s\"...\n\n", argv[1]);
       *listPtr = getFlightsFromFile(listPtr, fp);
+      printf("\nSuccessfully loaded flights from \"%s\".\n", argv[1]);
+      printList(*listPtr);
     }
   }
   userInput(listPtr); // get command from user
@@ -76,6 +78,7 @@ void deleteFlightFromCLI(Node **listPtr, char *str) {
   } else {
     printf("\nDeleting flight %d...\n", atoi(flightNumberStr));
     *listPtr = deleteR(listPtr, *listPtr, NULL, atoi(flightNumberStr));
+    printf("Successfully deleted flight %d.\n", atoi(flightNumberStr));
     printList(*listPtr);
   }
 }
@@ -117,7 +120,7 @@ int userInput(Node **listPtr) {
     break;
   case 'q':
     printList(top); // print list
-    printf("\nQuitting flight tracker...\n\n");
+    printf("Quitting flight tracker...\n\n");
     freeLList(top); // free linked list
     exit(0);        // exit
     break;
@@ -156,9 +159,10 @@ Node *getFlightsFromFile(Node **listPtr, FILE *fp) {
     f->departureTime = atoi(dtime);
     f->arrivalTime = atoi(atime);
     Node *np = makeNode(*f);
+    printf("Adding flight:   ");
+    printNode(np);
     *listPtr = insertR(listPtr, *listPtr, NULL, np); // insert flight into list
   }
-  printList(*listPtr);
   return *listPtr;
 }
 /**
