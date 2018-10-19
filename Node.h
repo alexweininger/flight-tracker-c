@@ -14,9 +14,7 @@ typedef struct Node {
 } Node;
 
 Node * insertR(Node **, Node *, Node *, Node *);
-Node *insert(Node *, flight);
 Node * deleteR(Node **, Node *, Node *, int);
-int delete (Node **, int);
 Node *makeNode(flight);
 void printNode(Node *);
 void printList(Node *);
