@@ -44,38 +44,6 @@ Node *insertR(Node **listPtr, Node *curr, Node *prev, Node *np) {
   return insertR(listPtr, curr->next, curr, np);
 }
 
-/**
- * insert - insert node into linked list, maintaining order
- */
-Node *insert(Node *top, flight f) {
-  Node *np, *curr, *prev;
-  np = makeNode(f);
-  prev = NULL;
-  curr = top;
-
-  while (curr != NULL && f.flightNumber >= curr->data->flightNumber) {
-    if (curr->data->flightNumber == f.flightNumber) {
-      printf("Flight %d already exists, did not add flight.\n", f.flightNumber);
-      return top;
-    }
-    prev = curr;
-    curr = curr->next;
-  }
-  if (prev == NULL) {
-    top = np;
-    top->next = curr;
-    return top;
-  }
-
-  np->next = curr;
-  prev->next = np;
-
-  printf("Adding flight:   %c%C   ", f.airlines[0], f.airlines[1]);
-  printf("%04d   %04d   %04d\n", f.flightNumber, f.arrivalTime,
-         f.departureTime);
-  return top;
-}
-
 Node *deleteR(Node **listPtr, Node *curr, Node *prev, int flightNumber) {
   // base case 1: list is empty
   if (NULL == *listPtr) {
