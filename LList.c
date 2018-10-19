@@ -101,38 +101,6 @@ Node *deleteR(Node **listPtr, Node *curr, Node *prev, int flightNumber) {
 }
 
 /**
- * delete - delete node from list given flight number
- */
-int delete (Node **listPtr, int flightNumber) {
-  printf("Deleting flight %d...\n", flightNumber);
-  Node *list = *listPtr;
-
-  // if deleting first node
-  if ((*listPtr)->data->flightNumber == flightNumber) {
-    printf("node to delete is first in list\n");
-    Node *temp = list->next;
-    *listPtr = temp;
-    // free(list); // free the node
-    return 1; // node was deleted
-  }
-
-  Node *prev = list;
-  list = list->next;
-
-  while (list != NULL) {
-    if (flightNumber == list->data->flightNumber) {
-      // redo pointers and then free memory
-      prev->next = list->next;
-      free(list);
-      return 1; // deleted node
-    }
-    prev = list; // update prev
-    list = list->next;
-  }
-  return -1; // node not found
-}
-
-/**
  * makeNode - allocate a node with given flight and return the node
  */
 Node *makeNode(flight f) {
