@@ -13,8 +13,11 @@ typedef struct Node {
   struct flight *data;
 } Node;
 
+Node * insertR(Node **, Node *, Node *, Node *);
 Node *insert(Node *, flight);
+Node * deleteR(Node **, Node *, Node *, int);
 int delete (Node **, int);
-Node * makeNode(flight);
+Node *makeNode(flight);
+void printNode(Node *);
 void printList(Node *);
 void freeLList(Node *);
