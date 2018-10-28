@@ -1,4 +1,4 @@
-/**
+/*
  * flight_tracker.c - main programming logic for the flight tracker program
  * author: Alex Weininger
  * modified: 10/18/2018
@@ -6,8 +6,8 @@
 
 #include "flight_tracker.h"
 
-/**
- * main - initiates userInput loop and if needed starts file reading
+/*
+ * main - initiates commands loop and if needed starts file reading
  */
 int main(int argc, char *argv[]) {
   printf("\n---- Flight Tracker ---\n\n");
@@ -19,21 +19,24 @@ int main(int argc, char *argv[]) {
     fp = fopen(argv[1], "r"); // open file for reading
     if (NULL == fp) {
       printf("Error: cannot open file named \"%s\".\n", argv[1]);
+      free(fp);
     } else {
       // load flights from file into list
       printf("Loading flights from \"%s\"...\n\n", argv[1]);
-      *listPtr = getFlightsFromFile(listPtr, fp);
+      *listPtr = loadFile(listPtr, fp);
       printf("\nSuccessfully loaded flights from \"%s\".\n", argv[1]);
+      fclose(fp);
+      free(fp);
       printList(*listPtr);
     }
   }
-  userInput(listPtr); // get command from user
+  commands(listPtr); // get command from user
 }
 
-/**
- * addFlightFromCLI - get flight details from user input and add flight to list
+/*
+ * addFlight - get flight details from user input and add flight to list
  */
-void addFlightFromCLI(Node **listPtr, char *line) {
+void addFlight(Node **listPtr, char *line, int fromFile) {
   Node *top = *listPtr;
   char *tok, *airlStr, *numStr, *depStr, *arrStr, lineCopy[255];
   strncpy(lineCopy, line, 254);
@@ -49,23 +52,23 @@ void addFlightFromCLI(Node **listPtr, char *line) {
   if (airlStr == NULL || numStr == NULL || arrStr == NULL || depStr == NULL) {
     printf("\nInvalid flight details. Cannot add flight.\n");
   } else {
-    // store details in flight
+    // store data in flight struct
     f.airlines[0] = airlStr[0];
     f.airlines[1] = airlStr[1];
     f.flightNumber = atoi(numStr);
     f.departureTime = atoi(depStr);
     f.arrivalTime = atoi(arrStr);
-    Node *np = makeNode(f);
+    Node *np = makeNode(f); // make Node for flight
     printf("\nAdding flight:   ");
     printNode(np);
-    *listPtr = insertR(listPtr, *listPtr, NULL, np);
+    *listPtr = insert(listPtr, *listPtr, NULL, np); // insert into list
   }
 }
 
-/**
- *  deleteFlightFromCLI - get flight number from user input and delete flight
+/*
+ * deleteFlight - get flight number from user input and delete flight
  */
-void deleteFlightFromCLI(Node **listPtr, char *str) {
+void deleteFlight(Node **listPtr, char *str) {
   Node *top = *listPtr;
   char lineCopy[255], *token, *flightNumberStr;
 
@@ -77,40 +80,43 @@ void deleteFlightFromCLI(Node **listPtr, char *str) {
     printf("Cannot delete. Missing flight number. For help enter \"h\".\n");
   } else {
     printf("\nDeleting flight %d...\n", atoi(flightNumberStr));
-    *listPtr = deleteR(listPtr, *listPtr, NULL, atoi(flightNumberStr));
-    printf("Successfully deleted flight %d.\n", atoi(flightNumberStr));
+    *listPtr = delete (listPtr, *listPtr, NULL, atoi(flightNumberStr));
+
     printList(*listPtr);
   }
 }
 
-/**
- * userInput - gets command from user input and handles command execution
+/*
+ * commands - gets command from user input and handles command execution
  */
-int userInput(Node **listPtr) {
+int commands(Node **listPtr) {
   Node *top = *listPtr;
-  char *token, *filename, c, lineCopy[255];
-  char *line = readline("> ");
+  char *token, *filename, c, lineCopy[255], line2[255];
+  char *line = NULL;
+  line = readline("> ");
 
-  strcpy(lineCopy, line); // make copy of line for later
-
+  strncpy(lineCopy, line, 254); // make copy of line for later
+  strncpy(line2, line, 254);    // make copy of line for later
+  free(line);
   // getting command from first letter of line
-  token = strtok(line, " ");
+  token = strtok(line2, " ");
   if (NULL == token)
-    return userInput(listPtr);
+    return commands(listPtr);
   c = token[0];
 
   // switch statement for handling commands
   switch (c) {
   case '\n':
-    userInput(listPtr);
+    commands(listPtr);
+    break;
   case 'a':
     // add flight from cli
-    addFlightFromCLI(listPtr, lineCopy);
+    addFlight(listPtr, lineCopy, 0);
     printList(*listPtr);
     break;
   case 'd':
     // delete flight given flight number
-    deleteFlightFromCLI(listPtr, lineCopy);
+    deleteFlight(listPtr, lineCopy);
     break;
   case 'h':
     help(); // print help
@@ -138,13 +144,13 @@ int userInput(Node **listPtr) {
            c);
     break;
   }
-  userInput(listPtr); // call userInput again
+  commands(listPtr); // call commands again
 }
 
-/**
- * getFlightsFromFile - reads file line by line, and inserts flights into list
+/*
+ * loadFile - reads file line by line, and inserts flights into list
  */
-Node *getFlightsFromFile(Node **listPtr, FILE *fp) {
+Node *loadFile(Node **listPtr, FILE *fp) {
   Node *node = (Node *)malloc(sizeof(Node)); // allocate node
   char line[255], atime[5], dtime[5];
 
@@ -161,11 +167,12 @@ Node *getFlightsFromFile(Node **listPtr, FILE *fp) {
     Node *np = makeNode(*f);
     printf("Adding flight:   ");
     printNode(np);
-    *listPtr = insertR(listPtr, *listPtr, NULL, np); // insert flight into list
+    *listPtr = insert(listPtr, *listPtr, NULL, np); // insert flight into list
   }
   return *listPtr;
 }
-/**
+
+/*
  * saveToFile - given a list and name, saves  list to file (if valid)
  */
 int saveToFile(Node *top, char *filename) {
@@ -174,12 +181,13 @@ int saveToFile(Node *top, char *filename) {
   fp = fopen(filename, "w");
 
   if (NULL == fp) {
-    printf("Error: Could not open file \"%s\" for writing.\n", filename);
+    printf("Error: Couldn't open file \"%s\" for writing.", filename);
+    printf("Enter \"h\" for help.\n");
     return -1; // return -1 for error
   }
 
   Node *curr = top;
-  while (NULL != curr->next) {
+  while (NULL != curr) {
     flight *f = curr->data;
     // write flight details to file
     fprintf(fp, "%c%c   ", f->airlines[0], f->airlines[1]);
@@ -192,7 +200,7 @@ int saveToFile(Node *top, char *filename) {
   return 1; // return 1 for success
 }
 
-/**
+/*
  * help - prints the commands and options for each command
  */
 void help() {

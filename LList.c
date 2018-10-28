@@ -1,14 +1,15 @@
-/**
+/*
  * LList.c - handles linked list logic
  * author: Alex Weininger
  * modified: 10/18/2018
  */
 #include "Node.h"
 
-/**
- * insertR - recursive insert
+/*
+ * insert a node into the linked list, sorted by flight number in ascending
+ * order
  */
-Node *insertR(Node **listPtr, Node *curr, Node *prev, Node *np) {
+Node *insert(Node **listPtr, Node *curr, Node *prev, Node *np) {
 
   // base case 1: if list is empty
   if (*listPtr == NULL) {
@@ -41,23 +42,27 @@ Node *insertR(Node **listPtr, Node *curr, Node *prev, Node *np) {
   }
 
   // recursive case
-  return insertR(listPtr, curr->next, curr, np);
+  return insert(listPtr, curr->next, curr, np);
 }
 
-Node *deleteR(Node **listPtr, Node *curr, Node *prev, int flightNumber) {
+/*
+ * deletes a node from the linked list
+ */
+Node *delete (Node **listPtr, Node *curr, Node *prev, int flightNumber) {
   // base case 1: list is empty
   if (NULL == *listPtr) {
     printf("Error: cannot delete flight from empty list.\n");
     return *listPtr;
   }
   // base case 2: did not find node
-  if (NULL == curr->next) {
+  if (NULL == curr) {
     printf("Error: flight %d not found.\n", flightNumber);
     return *listPtr;
   }
   // base case 3: found node
   if (flightNumber == curr->data->flightNumber) {
     if (prev == NULL) {
+      printf("Successfully deleted flight %d.\n", flightNumber);
       return (*listPtr)->next;
     }
     prev->next = curr->next;
@@ -65,11 +70,11 @@ Node *deleteR(Node **listPtr, Node *curr, Node *prev, int flightNumber) {
     return *listPtr;
   }
   // recursive case:
-  return deleteR(listPtr, curr->next, curr, flightNumber);
+  return delete (listPtr, curr->next, curr, flightNumber);
 }
 
-/**
- * makeNode - allocate a node with given flight and return the node
+/*
+ * allocates a node with given flight and returns the node
  */
 Node *makeNode(flight f) {
   Node *np = (Node *)malloc(sizeof(Node));
@@ -83,6 +88,9 @@ Node *makeNode(flight f) {
   return np;
 }
 
+/*
+ * prints a flight struct
+ */
 void printNode(Node *np) {
   flight *f;
   f = np->data;
@@ -91,8 +99,8 @@ void printNode(Node *np) {
   printf("%04d   %04d\n", f->arrivalTime, f->departureTime);
 }
 
-/**
- * printList - print linked list
+/*
+ * prints the linked list of flights
  */
 void printList(Node *node) {
 
@@ -109,8 +117,8 @@ void printList(Node *node) {
   printf("-----------------------\n\n");
 }
 
-/**
- * freeLList - free linked list
+/*
+ * frees the linked list of flights
  */
 void freeLList(Node *top) {
   Node *curr = top;
