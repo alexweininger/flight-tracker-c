@@ -19,18 +19,16 @@ int main(int argc, char *argv[]) {
     fp = fopen(argv[1], "r"); // open file for reading
     if (NULL == fp) {
       printf("Error: cannot open file named \"%s\".\n", argv[1]);
-      free(fp);
     } else {
       // load flights from file into list
       printf("Loading flights from \"%s\"...\n\n", argv[1]);
       *listPtr = loadFile(listPtr, fp);
       printf("\nSuccessfully loaded flights from \"%s\".\n", argv[1]);
       fclose(fp);
-      free(fp);
       printList(*listPtr);
     }
   }
-  commands(listPtr); // get command from user
+  return commands(listPtr); // get command from user
 }
 
 /*
@@ -90,24 +88,27 @@ void deleteFlight(Node **listPtr, char *str) {
  * commands - gets command from user input and handles command execution
  */
 int commands(Node **listPtr) {
-  Node *top = *listPtr;
   char *token, *filename, c, lineCopy[255], line2[255];
-  char *line = NULL;
-  line = readline("> ");
+  char *line = (char *)NULL;
 
+  line = (char *)readline("> ");
+  if (!line) {
+    return commands(listPtr);
+  }
   strncpy(lineCopy, line, 254); // make copy of line for later
   strncpy(line2, line, 254);    // make copy of line for later
-  free(line);
+
   // getting command from first letter of line
   token = strtok(line2, " ");
-  if (NULL == token)
+  if (NULL == token) {
+    free(token);
     return commands(listPtr);
+  }
   c = token[0];
 
   // switch statement for handling commands
   switch (c) {
   case '\n':
-    commands(listPtr);
     break;
   case 'a':
     // add flight from cli
@@ -122,19 +123,19 @@ int commands(Node **listPtr) {
     help(); // print help
     break;
   case 'p':
-    printList(top); // print the flight list
+    printList(*listPtr); // print the flight list
     break;
   case 'q':
-    printList(top); // print list
-    printf("Quitting flight tracker...\n\n");
-    freeLList(top); // free linked list
-    exit(0);        // exit
+    printf("\nQuitting flight tracker...\n");
+    printList(*listPtr); // print list
+    freeLList(*listPtr); // free linked list
+    exit(0);
     break;
   case 's':
     // save flight list to file
     filename = strtok(NULL, " ");
     if (NULL != filename) {
-      saveToFile(top, filename);
+      saveToFile(*listPtr, filename);
     } else {
       printf("\nInvalid filename \"%s\", could not save to file.\n", filename);
     }
@@ -144,27 +145,26 @@ int commands(Node **listPtr) {
            c);
     break;
   }
-  commands(listPtr); // call commands again
+  return commands(listPtr); // call commands again
 }
 
 /*
  * loadFile - reads file line by line, and inserts flights into list
  */
 Node *loadFile(Node **listPtr, FILE *fp) {
-  Node *node = (Node *)malloc(sizeof(Node)); // allocate node
   char line[255], atime[5], dtime[5];
 
   while (fgets(line, 255, fp)) { // reads file 1 line at a time
-    flight *f = (flight *)malloc(sizeof(flight));
-    sscanf(line, "%c%c %d", &f->airlines[0], &f->airlines[1], &f->flightNumber);
+    flight f;
+    sscanf(line, "%c%c %d", &f.airlines[0], &f.airlines[1], &f.flightNumber);
 
-    if (f->flightNumber == 0)
+    if (f.flightNumber == 0)
       printf("\nError: invalid flight number.\n");
 
     sscanf(line, "%*c%*c %*s %4s %4s\n", atime, dtime);
-    f->departureTime = atoi(dtime);
-    f->arrivalTime = atoi(atime);
-    Node *np = makeNode(*f);
+    f.departureTime = atoi(dtime);
+    f.arrivalTime = atoi(atime);
+    Node *np = makeNode(f);
     printf("Adding flight:   ");
     printNode(np);
     *listPtr = insert(listPtr, *listPtr, NULL, np); // insert flight into list

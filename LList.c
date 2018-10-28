@@ -11,22 +11,21 @@
  */
 Node *insert(Node **listPtr, Node *curr, Node *prev, Node *np) {
 
-  // base case 1: if list is empty
+  //! base case 1: if list is empty
   if (*listPtr == NULL) {
     np->next = *listPtr;
     return np;
   }
 
-  // base case 2: end of list is reached
+  //! base case 2: end of list is reached
   if (curr == NULL) {
     prev->next = np;
     return *listPtr;
   }
 
-  // base case 3: found duplicate flight number
+  //! base case 3: found duplicate flight number
   if (np->data->flightNumber == curr->data->flightNumber) {
-    printf("Error: could not add flight.\n");
-    printf("Flight %d already exists.\n", np->data->flightNumber);
+    printf("Error: could not add flight. Flight %d already exists.\n", np->data->flightNumber);
     return *listPtr;
   }
 
@@ -41,7 +40,7 @@ Node *insert(Node **listPtr, Node *curr, Node *prev, Node *np) {
     return *listPtr;
   }
 
-  // recursive case
+  //! recursive case
   return insert(listPtr, curr->next, curr, np);
 }
 
