@@ -2,3 +2,4 @@ ft
 flight_tracker.o
 LList.o
 ft.exe
+/flight_tracker.h
